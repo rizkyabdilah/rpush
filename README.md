@@ -2,6 +2,7 @@ rpush
 =====
 
 Python wrapper used to push notification to several web service
+
 Currently support for:
 
  * BlackBerry
@@ -14,6 +15,7 @@ Planning to support:
  * NGINX Push Stream
  
 Since notification can work as background job, you can used rpush as job queue
+
 What you need it is a Redis server (ver 2.4 using in development)
 Also Need:
 
@@ -91,4 +93,4 @@ Send your bug report, suggestion to rizky [at] abdi [dot] la
 Credits
 =======
 
- * Nicholas Brochu ![https://github.com/nbrochu], who originally write the library in ruby
+ * Nicholas Brochu ![https://github.com/nbrochu], who originally write the library blackberry push in ruby
