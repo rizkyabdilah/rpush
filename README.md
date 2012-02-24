@@ -19,14 +19,13 @@ Also Need:
 
  * python json
  * python redis
- * python
  
 Using python multiprocess to handle parallel job
 
 How To Use
 ==========
 
-Set config.ini file
+Create dummy config.ini file
 
     [main]
     #redis
@@ -83,4 +82,13 @@ TODO
  * add web interface for monitoring log
  * easily launch new worker without dirty hand into console
  * support other service (Android, Apple, Windows and NGINX Push Stream)
-    
+ 
+Bug Reports
+===========
+
+Send your bug report, suggestion to rizky [at] abdi [dot] la
+
+Credits
+=======
+
+ * Nicholas Brochu ![https://github.com/nbrochu], who originally write the library in ruby
