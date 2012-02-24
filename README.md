@@ -22,7 +22,9 @@ Using python multiprocess to handle parallel job
 
 Usage
 =====
+
 Set config.ini file
+
     [main]
     #redis
     host=localhost
@@ -45,14 +47,17 @@ Set config.ini file
     app_push_url = https://pushapi.eval.blackberry.com/mss/PD_pushRequest
     
 Start worker
+
     $ cd /path/to/rpush
     $ python main.py config.ini
     
 Easily send job queue via redis rpush method
+
     $ redis-cli
     $ > rpush jobs "{\"pins\": [\"12345678\"], \"message\": \"Hi citra!\", \"type\": \"blackberry\"}"
     
 Easily monitoring log via redis-cli
+
     $ redis-cli
     $ # get latest failed job log and also the traceback
     $ > lrange failed-job 0 1
@@ -71,6 +76,7 @@ Easily monitoring log via redis-cli
     
 TODO
 ====
+
  * add web interface for monitoring log
  * easily launch new worker without dirty hand into console
  * support other service (Android, Apple, Windows and NGINX Push Stream)
