@@ -3,25 +3,28 @@ rpush
 
 Python wrapper used to push notification to several web service
 Currently support for:
+
  * BlackBerry
 
 Planning to support:
+
  * Android
  * Windows Mobile
  * APNS (Apple)
  * NGINX Push Stream
  
-Since notification can work as background job, you also can used rpush as job queue
-What you need it is a Redis (ver 2.4 using in development)
+Since notification can work as background job, you can used rpush as job queue
+What you need it is a Redis server (ver 2.4 using in development)
 Also Need:
+
  * python json
  * python redis
  * python
  
 Using python multiprocess to handle parallel job
 
-Usage
-=====
+How To Use
+==========
 
 Set config.ini file
 
