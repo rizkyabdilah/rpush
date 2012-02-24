@@ -23,7 +23,7 @@ class Jobseeker(object):
         self.client = redis.Redis(host=config['host'], port=int(config['port']), db=int(config['db']))
         self.identity = identity
         self.max_log = int(config['max_log'])
-        self.max_retry = int(config['max_log'])
+        self.max_retry = int(config['max_retry'])
         
         self.abilities = {}
         for ability in config['module']:
@@ -32,6 +32,7 @@ class Jobseeker(object):
     def looking(self):
         while True:
             message = self.client.blpop('jobs', 1)
+            print message
             if message is not None:
                 self.work(message[1])
             sleep(1)
@@ -41,13 +42,14 @@ class Jobseeker(object):
         # job yang gagal tidak diantrikan
         try:
             job = json.loads(message)
+            assert job['type']
         except Exception, e:
             self.failed(message, 'invalid-message')
             return
         
         # tambahkan job id
         # gunanya untuk retry job
-        if not hasattr(job, 'jid'):
+        if job.get('jid') is None:
             job['jid'] = datetime.today().strftime('%Y:%M:%d/%H-%m-%s.%S')
         
         # tambahkan jam kerja worker
@@ -94,8 +96,9 @@ class Jobseeker(object):
         # tambahkan informasi gagal kerja
         self.client.hincrby('worker-info-failed', self.identity, 1)
         job = json.loads(message)
-        retry_count = self.hincrby('retry-job', job['jid'], 1)
+        retry_count = self.client.hincrby('retry-job', job['jid'], 1)
         if retry_count >= self.max_retry:
             return
-        self.rpush('jobs', message)
+        
+        self.client.rpush('jobs', message)
 

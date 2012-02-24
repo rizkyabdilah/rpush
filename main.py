@@ -1,6 +1,7 @@
 
 import sys
 import os
+import signal
 from multiprocessing import Process
 from ConfigParser import ConfigParser
 
@@ -28,22 +29,16 @@ def signal_handler(signum, frame):
         p.terminate()
 
 if __name__ == '__main__':
-    worker = 4
     
     processes = []
     uname = os.uname()[1]
     config = parse_config(sys.argv[1])
-    unemployed = Jobseeker(config, identity="%s-%d" %(uname, 1))
-    unemployed.looking()
     
-    '''for pnum in xrange(worker):
-        redis_client = redis.Redis(host='localhost', port=6379)
-        worker = Worker(redis_client)
-        workers.append(worker)
-        p = Process(target=worker.work, args=(pnum,))
+    for pnum in xrange(int(config['worker'])):
+        unemployed = Jobseeker(config, identity="%s-%d" % (uname, pnum))
+        p = Process(target=unemployed.looking)
         p.start()
-        processes.append(p)'''
-
-    #sleep(2)
-    #for p in processes:
-    #    p.terminate()
+        processes.append(p)
+        
+    signal.signal(signal.SIGTERM, signal_handler)
+    
