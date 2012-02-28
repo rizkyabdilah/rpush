@@ -1,1 +1,4 @@
 *.pyc
+.idea/*
+rpush.egg-info/
+rpush.komodoproject
