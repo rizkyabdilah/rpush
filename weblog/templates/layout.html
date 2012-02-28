@@ -1,0 +1,36 @@
+<html>
+<head>
+    <title>MonLog rpush</title>
+    <style type="text/css">
+        #nav ul{
+            margin: 0;
+            padding: 0;
+        }
+        #nav ul li {
+            margin: 0;
+            float: left;
+            padding: 0 10px;
+            border-right: 1px solid #ccc;
+            list-style: none;
+        }
+        #content{
+            padding: 20px 20px;
+        }
+    </style>
+</head>
+<body>
+<h2>Monitoring Log rpush</h2>
+<div id="nav">
+    <ul>
+        <li><a href="/">Overview</a></li>
+        <li><a href="/latest/success">Latest Success Job</a> ( ${info['count_success']} )</li>
+        <li><a href="/latest/failed">Latest Failed Job</a> ( ${info['count_failed']} )</li>
+        <li><a href="/latest/invalid-message">Latest Invalid Message</a> ( ${info['count_invalid_message']} )</li>
+        <li><a href="/latest/invalid-type">Latest Invalid Message</a> ( ${info['count_invalid_type']} )</li>
+        <li><a href="/worker/info">Worker Info</a> ( ${info['count_worker']} )</li>
+    </ul>
+</div>
+<div style="clear: both"></div>
+${next.body()}
+</body>
+</html>
