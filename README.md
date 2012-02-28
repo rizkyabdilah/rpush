@@ -7,12 +7,7 @@ Currently support for:
 
  * BlackBerry
 
-Planning to support:
-
- * Android
- * Windows Mobile
- * APNS (Apple)
- * NGINX Push Stream
+Planning to support, [see to do]
  
 Since notification can work as background job, you can used rpush as job queue
 
@@ -102,7 +97,10 @@ TODO
 ====
 
  * easily launch new worker without dirty hand into console
- * support other service (Android, Apple, Windows and NGINX Push Stream)
+ * support Android C2DM
+ * support Apple APNS
+ * support NGINX Push Stream Module
+ * support Windows Mobile
  
 Bug Reports
 ===========
