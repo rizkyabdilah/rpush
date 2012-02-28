@@ -18,15 +18,17 @@ class Jobseeker(object):
     max_log = 100
     max_retry = 5
     abilities = {}
+    module = []
     
     def __init__(self, config, identity='no-identity'):
         self.client = redis.Redis(host=config['host'], port=int(config['port']), db=int(config['db']))
         self.identity = identity
         self.max_log = int(config['max_log'])
         self.max_retry = int(config['max_retry'])
-        
+
+        self.module = config['module']
         self.abilities = {}
-        for ability in config['module']:
+        for ability in self.module:
             self.abilities[ability.lower()] = _get_class(ability)(**config[ability])
     
     def looking(self):
@@ -46,7 +48,11 @@ class Jobseeker(object):
         except Exception, e:
             self.failed(message, 'invalid-message')
             return
-        
+
+        if job['type'] not in self.module:
+            self.failed(message, 'invalid-type')
+            return
+
         # tambahkan job id
         # gunanya untuk retry job
         if job.get('jid') is None:

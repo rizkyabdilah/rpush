@@ -1,3 +1,4 @@
+config.ini
 *.pyc
 .idea/*
 rpush.egg-info/
