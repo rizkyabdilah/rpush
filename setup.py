@@ -6,6 +6,6 @@ setup(
     description='Job Queue Push Notification',
     author='rizkyabdilah',
     author_email='rizky@abdi.la',
-    install_requires=['web.py', 'redis'],
+    install_requires=['web.py', 'redis', 'Mako'],
     zip_safe=True,
 )

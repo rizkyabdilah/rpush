@@ -19,8 +19,9 @@ Since notification can work as background job, you can used rpush as job queue
 What you need it is a Redis server (ver 2.4 using in development)
 Also Need:
 
- * python json
  * python redis
+ * python web.py [optional]
+ * python mako [optional]
  
 Using python multiprocess to handle parallel job
 
@@ -77,11 +78,29 @@ Easily monitoring log via redis-cli
     $ > GET worker-info-failed [worker-id]
     $ # see if your code already send wrong opcode/message
     $ > LRANGE invalid-message 0 100
-    
+    $ # see if your code already send wrong type
+    $ > LRANGE invalid-type 0 100
+
+Also you can easily monitoring job log via web interface,
+to run weblog you need install web.py and mako template engine.
+
+    $ sudo pip install web.py
+    $ sudo pip install Mako
+
+Or easily via setup.py:
+
+    $ cd /path/to/rpush
+    $ sudo python setup.py develop
+
+Run web log, specify port in args 2, default 8080
+
+    $ python weblog/weblog.py 13000
+
+And open http://localhost:13000
+
 TODO
 ====
 
- * add web interface for monitoring log
  * easily launch new worker without dirty hand into console
  * support other service (Android, Apple, Windows and NGINX Push Stream)
  
