@@ -20,6 +20,11 @@ Also Need:
  
 Using python multiprocess to handle parallel job
 
+Feature
+=======
+
+ * Modular (easy to separate jobs, via config use_module)
+
 How To Use
 ==========
 
@@ -54,7 +59,7 @@ Start worker
 Easily send job queue via redis rpush method
 
     $ redis-cli
-    $ > rpush jobs "{\"pins\": [\"12345678\"], \"message\": \"Hi citra!\", \"type\": \"blackberry\"}"
+    $ > rpush jobs-blackberry "{\"pins\": [\"12345678\"], \"message\": \"Hi citra!\"}"
     
 Easily monitoring log via redis-cli
 
@@ -63,8 +68,8 @@ Easily monitoring log via redis-cli
     $ > lrange failed-job 0 1
     $ # get latest sucess job log
     $ > lrange success-job 0 1
-    $ # get job queue length
-    $ > llen jobs
+    $ # get job queue length, (blackberry push for example)
+    $ > llen jobs-blackberry
     $ # see list of worker
     $ > HKEYS worker-info
     $ # see how many job has been worked by worker
@@ -96,6 +101,7 @@ And open http://localhost:13000
 TODO
 ====
 
+ * complete weblog, support for modular report
  * easily launch new worker without dirty hand into console
  * support Android C2DM
  * support Apple APNS

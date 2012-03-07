@@ -18,11 +18,11 @@ client = None
 def _get_count():
     rv = {}
 
-    rv['count_job'] = client.llen('jobs')
+    ## @TODO: support count job for other module, make it modular
+    rv['count_job'] = client.llen('jobs-blackberry')
     rv['count_success'] = client.llen('success-job')
     rv['count_failed'] = client.llen('failed-job')
     rv['count_invalid_message'] = client.llen('invalid-message')
-    rv['count_invalid_type'] = client.llen('invalid-type')
     rv['count_worker'] = client.hlen('worker-info')
 
     return rv
@@ -42,9 +42,6 @@ class Latest(object):
         elif arg == 'invalid-message':
             key = 'invalid-message'
             title = 'Latest invalid message'
-        else:
-            key = 'invalid-type'
-            title = 'Latest invalid type'
 
         logs = client.lrange(key, 0, 100)
         return render.index(title=title, info=_get_count(), datas=logs)

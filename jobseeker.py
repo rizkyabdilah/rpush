@@ -13,13 +13,6 @@ _get_class = lambda s: eval(s[0].upper() + s.lower()[1:])
 
 class Jobseeker(object):
     
-    client = None
-    identity = None
-    max_log = 100
-    max_retry = 5
-    abilities = {}
-    module = []
-    
     def __init__(self, config, identity='no-identity'):
         self.client = redis.Redis(host=config['host'], port=int(config['port']), db=int(config['db']))
         self.identity = identity
@@ -30,10 +23,12 @@ class Jobseeker(object):
         self.abilities = {}
         for ability in self.module:
             self.abilities[ability.lower()] = _get_class(ability)(**config[ability])
+            
+        self.job_lists = map(lambda j: 'jobs-%s', self.module)
     
     def looking(self):
         while True:
-            message = self.client.blpop('jobs', 1)
+            message = self.client.blpop(self.job_lists, 1)
             print message
             if message is not None:
                 self.work(message[1])
@@ -44,13 +39,8 @@ class Jobseeker(object):
         # job yang gagal tidak diantrikan
         try:
             job = json.loads(message)
-            assert job['type']
         except Exception, e:
             self.failed(message, 'invalid-message')
-            return
-
-        if job['type'] not in self.module:
-            self.failed(message, 'invalid-type')
             return
 
         # tambahkan job id
