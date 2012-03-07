@@ -28,13 +28,14 @@ class Jobseeker(object):
     
     def looking(self):
         while True:
-            message = self.client.blpop(self.job_lists, 1)
-            print message
-            if message is not None:
-                self.work(message[1])
+            raw_message = self.client.blpop(self.job_lists, 1)
+
+            if raw_message is not None:
+                self.work(raw_message)
             sleep(1)
         
-    def work(self, message):
+    def work(self, raw_message):
+        job_type, message = raw_message
         # kalau message yang di passing salah
         # job yang gagal tidak diantrikan
         try:
@@ -51,7 +52,7 @@ class Jobseeker(object):
         # tambahkan jam kerja worker
         self.client.hincrby('worker-info', self.identity, 1)
         try:
-            response = self.abilities[job['type']].push(**job)
+            response = self.abilities[job_type].push(**job)
         except Exception, e:
             self.failed(json.dumps(job))
             return
