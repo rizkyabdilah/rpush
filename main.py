@@ -18,8 +18,9 @@ def parse_config(file_path):
     new_conf['module'] = new_conf['use_module'].split()
     for service in new_conf['module']:
         new_conf[service] = {}
-        for key, value in config.items(service):
-            new_conf[service][key] = value
+        if config.has_section(service):
+            for key, value in config.items(service):
+                new_conf[service][key] = value
 
     return new_conf
 
