@@ -25,7 +25,7 @@ class Blackberry(object):
         if not isinstance(pins, (tuple, list)):
             pins = pins.split(',')
             
-        pins = map(lambda p: p.strip(), pins)
+        pins = map(lambda p: str(p).strip(), pins)
         
         header = {
             'User-Agent': 'PyBBPush 0.1',

@@ -6,10 +6,11 @@ Python wrapper used to push notification to several web service
 Currently support for:
 
  * BlackBerry
+ * Android
 
 Planning to support, [see to do]
  
-Since notification can work as background job, you can used rpush as job queue
+Since notification can work as background job, you can use rpush as job queue via jobseeker.
 
 What you need it is a Redis server (ver 2.4 using in development)
 Also Need:
@@ -27,6 +28,21 @@ Feature
 
 How To Use
 ==========
+
+Using rpush as library
+--------------------
+
+    >>> import rpush
+    >>> # push to android c2dm
+    >>> c2dm = rpush.android.Android()
+    >>> c2dm.push(registration_id=[REG-ID], collapse_key=None, data={"message": "Hi Citra!"}, delay_while_idle=True, auth_token=[AUTH-TOKEN])
+    >>> # push to blackberry
+    >>> pushapi = rpush.blackberry.Blackberry([APP-ID], [APP-PASSWORD], [APP-PUSH-URL])
+    >>> pushapi.push(pins=[12345678], message="Hi again Citra!")
+
+
+Using jobseeker as Message Queue with rpush
+-------------------------------------------
 
 Create dummy config.ini file
 
@@ -59,25 +75,26 @@ Start worker
 Easily send job queue via redis rpush method
 
     $ redis-cli
-    $ > rpush jobs-blackberry "{\"pins\": [\"12345678\"], \"message\": \"Hi citra!\"}"
+    $ > rpush jobs:android "{\"auth_token\": \"ACCESS_TOKEN\", \"collapse_key\": 123, \"data\": {\"message\": \"Hi citra!\"}}"
+    $ > rpush jobs:blackberry "{\"pins\": [\"12345678\"], \"message\": \"Hello again citra!\"}"
     
 Easily monitoring log via redis-cli
 
     $ redis-cli
     $ # get latest failed job log and also the traceback
-    $ > lrange failed-job 0 1
+    $ > lrange failed:job 0 1
     $ # get latest sucess job log
-    $ > lrange success-job 0 1
+    $ > lrange success:job 0 1
     $ # get job queue length, (blackberry push for example)
-    $ > llen jobs-blackberry
+    $ > llen jobs:blackberry
     $ # see list of worker
-    $ > HKEYS worker-info
+    $ > HKEYS worker:info
     $ # see how many job has been worked by worker
-    $ > GET worker-info [worker-id]
+    $ > GET worker:info [worker-id]
     $ # see how many job has been worked and failed by worker
-    $ > GET worker-info-failed [worker-id]
+    $ > GET worker:info:failed [worker-id]
     $ # see if your code already send wrong opcode/message
-    $ > LRANGE invalid-message 0 100
+    $ > LRANGE invalid:message 0 100
     $ # see if your code already send wrong type
     $ > LRANGE invalid-type 0 100
 
@@ -103,7 +120,6 @@ TODO
 
  * complete weblog, support for modular report
  * easily launch new worker without dirty hand into console
- * support Android C2DM
  * support Apple APNS
  * support NGINX Push Stream Module
  * support Windows Mobile

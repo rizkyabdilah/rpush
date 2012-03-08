@@ -35,11 +35,12 @@ if __name__ == '__main__':
     uname = os.uname()[1]
     config = parse_config(sys.argv[1])
     
-    for pnum in xrange(int(config['worker'])):
-        unemployed = Jobseeker(config, identity="%s-%d" % (uname, pnum))
-        p = Process(target=unemployed.looking)
-        p.start()
-        processes.append(p)
+    #for pnum in xrange(int(config['worker'])):
+    unemployed = Jobseeker(config, identity="%s-%d" % (uname, 1))
+    unemployed.looking()
+        #p = Process(target=unemployed.looking)
+        #p.start()
+        #processes.append(p)
         
     signal.signal(signal.SIGTERM, signal_handler)
     

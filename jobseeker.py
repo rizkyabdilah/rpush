@@ -24,7 +24,7 @@ class Jobseeker(object):
         for ability in self.module:
             self.abilities[ability.lower()] = _get_class(ability)(**config[ability])
             
-        self.job_lists = map(lambda j: 'jobs-%s', self.module)
+        self.job_lists = map(lambda j: 'jobs:%s' % j, self.module)
     
     def looking(self):
         while True:
@@ -41,7 +41,7 @@ class Jobseeker(object):
         try:
             job = json.loads(message)
         except Exception, e:
-            self.failed(message, 'invalid-message')
+            self.failed(message, 'invalid:message')
             return
 
         # tambahkan job id
@@ -50,11 +50,12 @@ class Jobseeker(object):
             job['jid'] = datetime.today().strftime('%Y:%M:%d/%H-%m-%s.%S')
         
         # tambahkan jam kerja worker
-        self.client.hincrby('worker-info', self.identity, 1)
+        self.client.hincrby('worker:info', self.identity, 1)
         try:
-            response = self.abilities[job_type].push(**job)
+            ability_to_use = job_type.replace('jobs:', '')
+            response = self.abilities[ability_to_use].push(**job)
         except Exception, e:
-            self.failed(json.dumps(job))
+            self.failed(job_type, json.dumps(job))
             return
         
         # assumed success without exception
@@ -66,10 +67,10 @@ class Jobseeker(object):
         Message: {msg}\n\n
         Response: {rsp}
         '''.format(id=self.identity, msg=message, rsp=response)
-        self.client.lpush('success-job', tb_info)
-        self.client.ltrim('success-job', 0, self.max_log)
+        self.client.lpush('success:job', tb_info)
+        self.client.ltrim('success:job', 0, self.max_log)
     
-    def failed(self, message, failed_key='failed-job'):
+    def failed(self, job_type, message, failed_key='failed:job'):
         etype, evalue, etraceback = sys.exc_info()
         tb_io = StringIO()
         traceback.print_exception(etype, evalue, etraceback, limit=10, file=tb_io)
@@ -86,16 +87,16 @@ class Jobseeker(object):
         
         tb_io.close()
         
-        if failed_key == 'failed-job':
-            self.queue_again(message)
+        if failed_key == 'failed:job':
+            self.queue_again(job_type, message)
             
-    def queue_again(self, message):
+    def queue_again(self, job_type, message):
         # tambahkan informasi gagal kerja
-        self.client.hincrby('worker-info-failed', self.identity, 1)
+        self.client.hincrby('worker:info:failed', self.identity, 1)
         job = json.loads(message)
-        retry_count = self.client.hincrby('retry-job', job['jid'], 1)
+        retry_count = self.client.hincrby('retry:job', job['jid'], 1)
         if retry_count >= self.max_retry:
             return
         
-        self.client.rpush('jobs', message)
+        self.client.rpush(job_type, message)
 

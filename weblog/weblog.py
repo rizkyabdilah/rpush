@@ -19,11 +19,11 @@ def _get_count():
     rv = {}
 
     ## @TODO: support count job for other module, make it modular
-    rv['count_job'] = client.llen('jobs-blackberry')
-    rv['count_success'] = client.llen('success-job')
-    rv['count_failed'] = client.llen('failed-job')
-    rv['count_invalid_message'] = client.llen('invalid-message')
-    rv['count_worker'] = client.hlen('worker-info')
+    rv['count_job'] = client.llen('jobs:blackberry')
+    rv['count_success'] = client.llen('success:job')
+    rv['count_failed'] = client.llen('failed:job')
+    rv['count_invalid_message'] = client.llen('invalid:message')
+    rv['count_worker'] = client.hlen('worker:info')
 
     return rv
 
@@ -34,13 +34,13 @@ class Index(object):
 class Latest(object):
     def GET(self, arg=None):
         if arg == 'failed':
-            key = 'failed-job'
+            key = 'failed:job'
             title = 'Latest failed job'
         elif arg == 'success':
-            key = 'success-job'
+            key = 'success:job'
             title = 'Latest success job'
-        elif arg == 'invalid-message':
-            key = 'invalid-message'
+        elif arg == 'invalid:message':
+            key = 'invalid:message'
             title = 'Latest invalid message'
 
         logs = client.lrange(key, 0, 100)
@@ -49,10 +49,10 @@ class Latest(object):
 class Worker(object):
     def GET(self, arg=None):
         datas = {}
-        for w in client.hkeys('worker-info'):
+        for w in client.hkeys('worker:info'):
             datas[w] = {}
-            datas[w]['count_all'] = int(client.hget('worker-info', w))
-            datas[w]['count_failed'] = int(client.hget('worker-info-failed', w))
+            datas[w]['count_all'] = int(client.hget('worker:info', w))
+            datas[w]['count_failed'] = int(client.hget('worker:info:failed', w))
             datas[w]['count_success'] = datas[w]['count_all'] - datas[w]['count_failed']
 
         return render.index(title='List worker info', info=_get_count(), datas=datas)
