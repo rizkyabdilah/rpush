@@ -14,12 +14,12 @@ class Android(object):
              collapse_key=None,
              data={},
              delay_while_idle=True,
-             auth_token=''
+             auth_token='',
              *args, **kwargs):
         
         # set access token first
         header = {
-            'Authorization': auth_token,
+            'Authorization': 'GoogleLogin Auth=' + auth_token,
             'Pragma': 'no-cache'
         }
         
