@@ -121,6 +121,11 @@ Run web log, specify port in args 2, default 8080
 
 And open http://localhost:13000
 
+Notes
+=====
+
+ * You need to implicit your plugin library in rpush/__init__.py if you want to use your own library.
+
 TODO
 ====
 
