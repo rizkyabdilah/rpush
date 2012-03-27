@@ -8,7 +8,8 @@ class Android(object):
     c2dm_client_login_url = 'https://www.google.com/accounts/ClientLogin'
     c2dm_push_url = 'https://android.apis.google.com/c2dm/send'
     
-    def __init__(self, app_email, app_email_password, app_source='rpush-android.c2dm.push-1.0'):
+    def __init__(self, app_email, app_email_password,
+                 app_source='rpush-android.c2dm.push-1.0'):
         body = {
             'Email': app_email, 'Passwd': app_email_password,
             'accountType': 'google', 'service': 'ac2dm',
@@ -17,7 +18,7 @@ class Android(object):
             'source': app_source
         }
         
-        resp = httputils.post(c2dm_client_login_url, body=body)
+        resp = httputils.post(self.c2dm_client_login_url, body=body)
         if resp['header']['Status'].lower() != '200 ok':
             print resp
             raise Exception, 'Unknown response from Google'
@@ -30,12 +31,8 @@ class Android(object):
         raise Exception, 'No Auth Token from Google'
         
     
-    def push(self,
-             registration_id='',
-             collapse_key=None,
-             data={},
-             delay_while_idle=True
-             *args, **kwargs):
+    def push(self, registration_id='', collapse_key=None,
+             data={}, delay_while_idle=True, *args, **kwargs):
         
         # set access token first
         header = {
