@@ -34,8 +34,8 @@ Using rpush as library
 
     >>> import rpush
     >>> # push to android c2dm
-    >>> c2dm = rpush.android.Android()
-    >>> c2dm.push(registration_id=[REG-ID], collapse_key=None, data={"message": "Hi Citra!"}, delay_while_idle=True, auth_token=[AUTH-TOKEN])
+    >>> c2dm = rpush.android.Android(app_email=[APP-EMAIL], app_email_password=[APP-EMAIL-PASSWORD])
+    >>> c2dm.push(registration_id=[REG-ID], collapse_key=None, data={"message": "Hi Citra!"}, delay_while_idle=True)
     >>> # push to blackberry
     >>> pushapi = rpush.blackberry.Blackberry([APP-ID], [APP-PASSWORD], [APP-PUSH-URL])
     >>> pushapi.push(pins=[12345678], message="Hi again Citra!")
@@ -60,12 +60,18 @@ Create dummy config.ini file
     
     worker=1
     # separated by space
-    use_module=blackberry
+    use_module=blackberry android
+    
+    [android]
+    app_email = [YOUR-EMAIL-ADDRESS]
+    app_email_password = [YOUR-EMAIL-PASSWORD]
+    app_source = [COMPANY-APPLICATION-VERSION]
     
     [blackberry]
     app_id = [YOUR-APP-ID]
     app_password = [YOUR-APP-PASSWORD]
     app_push_url = https://pushapi.eval.blackberry.com/mss/PD_pushRequest
+    
     
 Start worker
 
@@ -75,7 +81,7 @@ Start worker
 Easily send job queue via redis rpush method
 
     $ redis-cli
-    $ > rpush jobs:android "{\"auth_token\": \"ACCESS_TOKEN\", \"collapse_key\": 123, \"data\": {\"message\": \"Hi citra!\"}}"
+    $ > rpush jobs:android "{\"registration_id\": \"REG_ID\", \"collapse_key\": 123, \"data\": {\"message\": \"Hi citra!\"}}"
     $ > rpush jobs:blackberry "{\"pins\": [\"12345678\"], \"message\": \"Hello again citra!\"}"
     
 Easily monitoring log via redis-cli

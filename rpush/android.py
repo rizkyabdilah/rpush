@@ -4,22 +4,42 @@ from datetime import datetime
 
 class Android(object):
     
+    auth_token = None
+    c2dm_client_login_url = 'https://www.google.com/accounts/ClientLogin'
     c2dm_push_url = 'https://android.apis.google.com/c2dm/send'
     
-    def __init__(self):
-        pass
+    def __init__(self, app_email, app_email_password, app_source='rpush-android.c2dm.push-1.0'):
+        body = {
+            'Email': app_email, 'Passwd': app_email_password,
+            'accountType': 'google', 'service': 'ac2dm',
+            # app source is a string to identify your application
+            # the format is [COMPANY-NAME]-[APPLICATION-NAME]-[VERSION-ID]
+            'source': app_source
+        }
+        
+        resp = httputils.post(c2dm_client_login_url, body=body)
+        if resp['header']['Status'].lower() != '200 ok':
+            print resp
+            raise Exception, 'Unknown response from Google'
+        
+        for token in resp['body'].split():
+            if token.startswith('Auth'):
+                self.auth_token = token[5:]
+                return
+        
+        raise Exception, 'No Auth Token from Google'
+        
     
     def push(self,
              registration_id='',
              collapse_key=None,
              data={},
-             delay_while_idle=True,
-             auth_token='',
+             delay_while_idle=True
              *args, **kwargs):
         
         # set access token first
         header = {
-            'Authorization': 'GoogleLogin Auth=' + auth_token,
+            'Authorization': 'GoogleLogin Auth=' + self.auth_token,
             'Pragma': 'no-cache'
         }
         
