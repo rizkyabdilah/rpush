@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>rpush by rizkyabdilah</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>rpush</h1>
+        <h2>Push Notification to RIM, C2DM, APNS and WPNS</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/rizkyabdilah/rpush/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/rizkyabdilah/rpush/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/rizkyabdilah/rpush" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <p>Python wrapper used to push notification to several web service</p>
+
+<p>Currently support for:</p>
+
+<ul>
+<li>RIM (Blackberry)</li>
+<li>C2DM (Android)</li>
+</ul><p>Planning to support, [see to do]
+Since notification can work as background job, you can use rpush as job queue via jobseeker.</p>
+
+<p>What you need it is a Redis server (ver 2.4 using in development)
+Also Need:</p>
+
+<ul>
+<li>python redis</li>
+<li>python web.py [optional]</li>
+<li>python mako [optional]</li>
+</ul><p>Using python multiprocess to handle parallel job</p>
+
+<h3>Feature</h3>
+
+<ul>
+<li>Modular (easy to separate jobs, via config use_module)</li>
+</ul><h3>How To Use</h3>
+
+<h5>Using rpush as library</h5>
+
+<pre><code>&gt;&gt;&gt; import rpush
+&gt;&gt;&gt; # push to android c2dm
+&gt;&gt;&gt; c2dm = rpush.android.Android(app_email=[APP-EMAIL], app_email_password=[APP-EMAIL-PASSWORD])
+&gt;&gt;&gt; c2dm.push(registration_id=[REG-ID], collapse_key=None, data={"message": "Hi Citra!"}, delay_while_idle=True)
+&gt;&gt;&gt; # push to blackberry
+&gt;&gt;&gt; pushapi = rpush.blackberry.Blackberry([APP-ID], [APP-PASSWORD], [APP-PUSH-URL])
+&gt;&gt;&gt; pushapi.push(pins=[12345678], message="Hi again Citra!")
+</code></pre>
+
+<h5>Using jobseeker as Message Queue with rpush</h5>
+
+<p>Create dummy config.ini file</p>
+
+<pre><code>[main]
+#redis
+host=localhost
+port=6379
+db=0
+
+# max error log stored in redis
+max_log=3
+
+# max retry job failed
+max_retry=2
+# worker number, multiprocess
+worker=1
+# separated by space
+use_module=blackberry android
+
+[android]
+app_email = [YOUR-EMAIL-ADDRESS]
+app_email_password = [YOUR-EMAIL-PASSWORD]
+app_source = [COMPANY-APPLICATION-VERSION]
+
+[blackberry]
+app_id = [YOUR-APP-ID]
+app_password = [YOUR-APP-PASSWORD]
+app_push_url = <a href="https://pushapi.eval.blackberry.com/mss/PD_pushRequest">https://pushapi.eval.blackberry.com/mss/PD_pushRequest</a>
+</code></pre>
+
+<p>Start worker</p>
+
+<pre><code>$ cd /path/to/rpush
+$ python main.py config.ini
+</code></pre>
+
+<p>Easily send job queue via redis rpush method</p>
+
+<pre><code>$ redis-cli
+$ &gt; rpush jobs:android "{\"registration_id\": \"REG_ID\", \"collapse_key\": 123, \"data\": {\"message\": \"Hi citra!\"}}"
+$ &gt; rpush jobs:blackberry "{\"pins\": [\"12345678\"], \"message\": \"Hello again citra!\"}"
+</code></pre>
+
+<p>Easily monitoring log via redis-cli</p>
+
+<pre><code>$ redis-cli
+$ # get latest failed job log and also the traceback
+$ &gt; lrange failed:job 0 1
+$ # get latest sucess job log
+$ &gt; lrange success:job 0 1
+$ # get job queue length, (blackberry push for example)
+$ &gt; llen jobs:blackberry
+$ # see list of worker
+$ &gt; HKEYS worker:info
+$ # see how many job has been worked by worker
+$ &gt; GET worker:info [worker-id]
+$ # see how many job has been worked and failed by worker
+$ &gt; GET worker:info:failed [worker-id]
+$ # see if your code already send wrong opcode/message
+$ &gt; LRANGE invalid:message 0 100
+$ # see if your code already send wrong type
+$ &gt; LRANGE invalid-type 0 100
+</code></pre>
+
+<p>Also you can easily monitoring job log via web interface,
+to run weblog you need install web.py and mako template engine.</p>
+
+<pre><code>$ sudo pip install web.py
+$ sudo pip install Mako
+</code></pre>
+
+<p>Or easily via setup.py:</p>
+
+<pre><code>$ cd /path/to/rpush
+$ sudo python setup.py develop
+</code></pre>
+
+<p>Run web log, specify port in args 2, default 8080</p>
+
+<pre><code>$ python weblog/weblog.py 13000
+</code></pre>
+
+<p>And open http://localhost:13000</p>
+
+<h3>Notes</h3>
+
+<ul>
+<li>You need to implicit your plugin library in rpush/<strong>init</strong>.py if you want to use your own library.</li>
+</ul><h3>TODO</h3>
+
+<ul>
+<li>complete weblog, support for modular report</li>
+<li>easily launch new worker without dirty hand into console</li>
+<li>support Apple APNS</li>
+<li>support NGINX Push Stream Module</li>
+<li>support Windows Mobile</li>
+</ul><h3>Bug Reports</h3>
+
+<p>Send your bug report, suggestion to rizky@abdi.la</p>
+
+<h3>Credits</h3>
+
+<ul>
+<li>Nicholas Brochu [<a href="https://github.com/nbrochu" class="user-mention">@nbrochu</a>], who originally write the library blackberry push in ruby</li>
+</ul>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
