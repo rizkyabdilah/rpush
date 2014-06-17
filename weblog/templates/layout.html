@@ -1,7 +1,11 @@
 <html>
 <head>
-    <title>MonLog rpush</title>
+    <title>MonLog RPUSH worker</title>
     <style type="text/css">
+        body{
+            /*background: url(http://autoloadf.com/bg/tile-graphpaper.jpg);*/
+            font-family: monospace;
+        }
         #nav ul{
             margin: 0;
             padding: 0;
@@ -19,17 +23,19 @@
     </style>
 </head>
 <body>
-<h2>Monitoring Log rpush</h2>
-<div id="nav">
-    <ul>
-        <li><a href="/">Overview</a></li>
-        <li><a href="/latest/success">Latest Success Job</a> ( ${info['count_success']} )</li>
-        <li><a href="/latest/failed">Latest Failed Job</a> ( ${info['count_failed']} )</li>
-        <li><a href="/latest/invalid:message">Latest Invalid Message</a> ( ${info['count_invalid_message']} )</li>
-        <li><a href="/worker/info">Worker Info</a> ( ${info['count_worker']} )</li>
-    </ul>
-</div>
-<div style="clear: both"></div>
-${next.body()}
+    <div style="width: 940px; margin: 0 auto">
+        <h2>Monitoring Log RPUSH worker</h2>
+        <div id="nav">
+            <ul>
+                <li><a href="/">Overview</a></li>
+                <li><a href="/latest/success">Latest Success Job</a> ( ${info['count_success']} )</li>
+                <li><a href="/latest/failed">Latest Failed Job</a> ( ${info['count_failed']} )</li>
+                <li><a href="/latest/invalid:message">Latest Invalid Message</a> ( ${info['count_invalid_message']} )</li>
+                <li><a href="/worker/info">Worker Info</a> ( ${info['count_worker']} )</li>
+            </ul>
+        </div>
+        <div style="clear: both"></div>
+        ${next.body()}
+    </div>
 </body>
 </html>

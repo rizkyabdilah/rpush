@@ -3,14 +3,8 @@
 <div id="content">
     ${title}
     <ol>
-    % if type(datas) == list:
         % for data in datas:
             <li>${data.replace('\n\n', '<br />').replace('\n', '<br />')}</li>
         % endfor
-    % else:
-        % for key, value, in datas.iteritems():
-            <li>${key}, success job: ${value['count_success']}, failed job: ${value['count_failed']}</li>
-        % endfor
-    % endif
     </ol>
 </div>

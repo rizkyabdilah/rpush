@@ -2,6 +2,7 @@
 import web
 import redis
 import os
+import json
 
 from ConfigParser import ConfigParser
 
@@ -18,8 +19,10 @@ client = None
 def _get_count():
     rv = {}
 
-    ## @TODO: support count job for other module, make it modular
-    rv['count_job'] = client.llen('jobs:blackberry')
+    rv['jobs'] = dict()
+    for module in use_module.split():
+        job_key = "jobs:" + module.lower()
+        rv['jobs'][module] = client.llen(job_key)
     rv['count_success'] = client.llen('success:job')
     rv['count_failed'] = client.llen('failed:job')
     rv['count_invalid_message'] = client.llen('invalid:message')
@@ -54,8 +57,17 @@ class Worker(object):
             datas[w]['count_all'] = int(client.hget('worker:info', w))
             datas[w]['count_failed'] = int(client.hget('worker:info:failed', w))
             datas[w]['count_success'] = datas[w]['count_all'] - datas[w]['count_failed']
-
-        return render.index(title='List worker info', info=_get_count(), datas=datas)
+            
+            worker_detail = client.hget('worker:info:detail', w)
+            worker_detail = json.loads(worker_detail)
+            state = "up" if worker_detail.get("state") else "down"
+            serving = ",".join(worker_detail.get("ability", []))
+            datas[w]['state'] = state
+            datas[w]['serving'] = serving
+            
+            datas[w]['current_work'] = client.hget('worker:current_work', w)
+            
+        return render.worker(title='List worker info', info=_get_count(), datas=datas)
 
 urls = (
     '/', 'Index',
@@ -74,6 +86,7 @@ if __name__ == '__main__':
     rds_port = config.get('main', 'port')
     rds_db = config.get('main', 'db')
     client = redis.Redis(host=rds_host, port=int(rds_port), db=int(rds_db))
+    use_module = config.get('main', 'use_module')
 
     fvars = {
         'max_log': max_log,
@@ -86,3 +99,4 @@ if __name__ == '__main__':
 
     app = web.application(urls, fvars, autoreload=True)
     app.run()
+    
