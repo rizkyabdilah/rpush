@@ -2,10 +2,12 @@
 import sys
 import os
 import signal
-from multiprocessing import Process
+import logging
+from multiprocessing import Process, Value
+from ctypes import c_bool
 from ConfigParser import ConfigParser
-
 from jobseeker import Jobseeker
+
 
 def parse_config(file_path):
     config = ConfigParser()
@@ -17,6 +19,7 @@ def parse_config(file_path):
     
     new_conf['module'] = new_conf['use_module'].split()
     for service in new_conf['module']:
+        service = service.lower()
         new_conf[service] = {}
         if config.has_section(service):
             for key, value in config.items(service):
@@ -25,9 +28,10 @@ def parse_config(file_path):
     return new_conf
 
 def signal_handler(signum, frame):
-    global processes
-    for p in processes:
-        p.terminate()
+    global processes, unemployed
+    unemployed.value = False
+    for process in processes:
+        process.join()
 
 if __name__ == '__main__':
     
@@ -35,12 +39,30 @@ if __name__ == '__main__':
     uname = os.uname()[1]
     config = parse_config(sys.argv[1])
     
-    print '[INFO] init rpush'
+    logger = logging.getLogger("worker")
+    logger.setLevel(logging.DEBUG)
+    
+    ch = logging.StreamHandler(sys.stderr)
+    
+    logging_level = logging.INFO
+    if config.get('debug', 0) == '1':
+        logging_level = logging.DEBUG
+    ch.setLevel(logging_level)
+    
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    
+    logger.info("INIT RPUSH Worker")
+    unemployed = Value(c_bool, True)
     
     for pnum in xrange(int(config['worker'])):
-        unemployed = Jobseeker(config, identity='%s-%d' % (uname, 1))
-        p = Process(target=unemployed.looking)
+        unemployed_worker = Jobseeker(config, logger,
+            identity='%s-%d' % (uname, pnum), pnum=pnum+1, ppid=os.getpid())
+        p = Process(target=unemployed_worker.looking, args=(pnum, unemployed))
         p.start()
         processes.append(p)
+        
+    
     signal.signal(signal.SIGTERM, signal_handler)
     
