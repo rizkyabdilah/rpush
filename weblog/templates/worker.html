@@ -1,0 +1,24 @@
+## -*- coding: utf-8 -*-
+<%inherit file="layout.html" />
+<div id="content">
+    ${title}
+    <ol>
+        % for key, value, in datas.iteritems():
+            <li style="margin-bottom: 10px">
+                ${key}, state: ${value['state']}<br />
+                serving: ${value['serving']}<br />
+                success job: ${value['count_success']}, failed job: ${value['count_failed']}<br />
+                current work: ${value['current_work']}
+            </li>
+        % endfor
+    </ol>
+    <br />
+    Jobs Info:
+    <ol>
+        % for key, value in info['jobs'].iteritems():
+            <li style="margin-bottom: 10px">
+                ${key}: ${value}
+            </li>
+        % endfor
+    </ol>
+</div>
