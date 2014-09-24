@@ -43,12 +43,7 @@ if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     
     ch = logging.StreamHandler(sys.stderr)
-    
-    logging_level = logging.INFO
-    if config.get('debug', 0) == '1':
-        logging_level = logging.DEBUG
-    ch.setLevel(logging_level)
-    
+    ch.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
     logger.addHandler(ch)

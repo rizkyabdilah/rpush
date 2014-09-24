@@ -20,19 +20,54 @@ def _get_count():
     rv = {}
 
     rv['jobs'] = dict()
+    rv['junk'] = dict()
+    count_junk = 0
     for module in use_module.split():
         job_key = "jobs:" + module.lower()
         rv['jobs'][module] = client.llen(job_key)
+        junk_key = "junk:" + job_key
+        rv['junk'][module] = client.llen(junk_key)
+        count_junk += rv['junk'][module]
+        
     rv['count_success'] = client.llen('success:job')
     rv['count_failed'] = client.llen('failed:job')
     rv['count_invalid_message'] = client.llen('invalid:message')
     rv['count_worker'] = client.hlen('worker:info')
+    rv['count_junk'] = count_junk
+    rv['web_path'] = config.get('main', 'web_path')
 
     return rv
 
 class Index(object):
     def GET(self):
         return render.index(title='Please select in menu', info=_get_count(), datas=[])
+    
+class Retry(object):
+    def GET(self):
+        
+        data = dict()
+        for module in use_module.split():
+            data[module] = client.lrange('junk:jobs:' + module.lower(), 0, -1)
+            
+        return render.retry(title='Retry Jobs', info=_get_count(), data=data)
+    
+    def POST(self):
+        wi = web.input()
+        action = wi.action
+        job = wi.job
+        message = wi.message
+        client.lrem('junk:jobs:' + job.lower(), message, 1)
+        
+        if action == "retry":
+            message = json.loads(message)
+            if not message.has_key("retried"):
+                message["retried"] = 0
+            message["retried"] += 1
+            message = json.dumps(message)
+            client.rpush('jobs:' + job.lower(), message)
+        
+        web.header("Content-Type", "application/json")
+        return json.dumps(dict(ok=True))
 
 class Latest(object):
     def GET(self, arg=None):
@@ -71,6 +106,7 @@ class Worker(object):
 
 urls = (
     '/', 'Index',
+    '/retry', 'Retry',
     '/latest/([a-z\-]+)', 'Latest',
     '/worker/([a-z]+)', 'Worker',
 )
@@ -94,6 +130,7 @@ if __name__ == '__main__':
         'render': render,
         'Index': Index,
         'Latest': Latest,
+        'Retry': Retry,
         'Worker': Worker
     }
 

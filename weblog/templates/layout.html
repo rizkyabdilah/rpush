@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>MonLog RPUSH worker</title>
+    <title>MonLog RPUSH Worker</title>
     <style type="text/css">
         body{
             /*background: url(http://autoloadf.com/bg/tile-graphpaper.jpg);*/
@@ -21,17 +21,19 @@
             padding: 20px 20px;
         }
     </style>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 </head>
 <body>
     <div style="width: 940px; margin: 0 auto">
-        <h2>Monitoring Log RPUSH worker</h2>
+        <h2>Monitoring Log RPUSH Worker</h2>
         <div id="nav">
             <ul>
-                <li><a href="/">Overview</a></li>
-                <li><a href="/latest/success">Latest Success Job</a> ( ${info['count_success']} )</li>
-                <li><a href="/latest/failed">Latest Failed Job</a> ( ${info['count_failed']} )</li>
-                <li><a href="/latest/invalid:message">Latest Invalid Message</a> ( ${info['count_invalid_message']} )</li>
-                <li><a href="/worker/info">Worker Info</a> ( ${info['count_worker']} )</li>
+                <li><a href="${info['web_path']}/">Overview</a></li>
+                <li><a href="${info['web_path']}/latest/success">Success Job</a> ( ${info['count_success']} )</li>
+                <li><a href="${info['web_path']}/latest/failed">Failed Job</a> ( ${info['count_failed']} )</li>
+                <li><a href="${info['web_path']}/latest/invalid:message">Invalid Message</a> ( ${info['count_invalid_message']} )</li>
+                <li><a href="${info['web_path']}/retry">Retry Work ( ${info['count_junk']} )</a></li>
+                <li><a href="${info['web_path']}/worker/info">Worker Info</a> ( ${info['count_worker']} )</li>
             </ul>
         </div>
         <div style="clear: both"></div>
