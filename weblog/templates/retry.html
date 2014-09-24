@@ -1,0 +1,49 @@
+## -*- coding: utf-8 -*-
+<%inherit file="layout.html" />
+<div id="content">
+    <h3>${title}</h3>
+        % for job, job_messages in data.iteritems():
+            ${job}<br><br>
+            <ol style="padding-left: 50px;">
+            % for message in job_messages:
+                <li>
+                    <a href="javascript:void(0)" class="action" data-action="retry" data-job="${job}" data-message="${message | h}">Retry</a> |
+                    <a href="javascript:void(0)" class="action" data-action="dismiss" data-job="${job}" data-message="${message | h}">Dismiss</a><br />
+                    ${message.replace('\n\n', '<br />').replace('\n', '<br />')}
+                </li>
+            % endfor
+            </ol>
+        % endfor
+    </ol>
+</div>
+<script type="text/javascript">
+    window.a = null;
+    $(document).ready(function(){
+        $(".action").on("click", function(){
+            var self = this;
+            var action = $(self).attr("data-action");
+            var message = $(self).attr("data-message");
+            var job = $(self).attr("data-job");
+            postData(action, message, job, function(){ $(self).parent().remove(); });
+        });
+        
+        var postData = function(action, message, job, callback){
+            $.ajax({
+                url: "${info['web_path']}/retry",
+                method: "POST",
+                data: {
+                    action: action,
+                    message: message,
+                    job: job,
+                },
+            }).done(function(data){
+                console.log(data);
+                if (data.ok) {
+                    callback();
+                } else{
+                    alert("Failed!");
+                }
+            });
+        }
+    });
+</script>
