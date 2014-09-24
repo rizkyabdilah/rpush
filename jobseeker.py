@@ -9,7 +9,7 @@ from time import sleep
 from datetime import datetime
 from StringIO import StringIO
 
-from libworker import *
+from worker import *
 
 _get_class = lambda s: eval('%s' % s)
 
