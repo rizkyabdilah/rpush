@@ -5,7 +5,6 @@ import os
 import redis
 import json
 import base64
-from time import sleep
 from datetime import datetime
 from StringIO import StringIO
 
@@ -82,8 +81,6 @@ class Jobseeker(object):
                 self.work(raw_message)
                 self.complete_current_work()
                 
-            self.logger.debug("%s sleep for 1 sec" % self.identity)
-            sleep(1)
         else:
             self.got_fired()
             self.logger.info("%s got permanently unemployed, restart worker" %
