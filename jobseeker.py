@@ -5,13 +5,13 @@ import os
 import redis
 import json
 import base64
+from time import sleep
 from datetime import datetime
 from StringIO import StringIO
 
-def _get_class(s):
-    clpath = __import__("rpush.%s" % s.lower())
-    cls = getattr(getattr(clpath, s.lower()), s)
-    return cls
+from libworker import *
+
+_get_class = lambda s: eval('%s' % s)
 
 class Jobseeker(object):
     
@@ -76,7 +76,7 @@ class Jobseeker(object):
             raw_message = self.client.blpop(self.job_lists, 1)
 
             if raw_message is not None:
-                self.logger.info("worker got message: %s", raw_message, extra=self.einfo)
+                self.logger.debug("worker got message: %s", raw_message, extra=self.einfo)
                 self.set_current_work(raw_message)
                 self.work(raw_message)
                 self.complete_current_work()
@@ -112,7 +112,7 @@ class Jobseeker(object):
         self.client.hincrby('worker:info', self.identity, 1)
         try:
             ability_to_use = job_type.replace('jobs:', '')
-            self.logger.info("worker use ability %s",
+            self.logger.debug("worker use ability %s",
                               ability_to_use, extra=self.einfo)
             response = self.abilities[ability_to_use].work(**job)
             
@@ -165,10 +165,13 @@ class Jobseeker(object):
         job = json.loads(message)
         replied_num = self.replied_num(job["jid"], 1)
         if replied_num >= self.max_retry:
-            self.logger.info("job is fail more than max retry (%d), job_type: %s, message: %s",
+            self.logger.debug("job is fail more than max retry (%d), job_type: %s, message: %s",
                               self.max_retry, job_type, message, extra=self.einfo)
+
+            # send failed job to trash can
+            self.client.rpush('junk:%s' % job_type, message)
             return
-        self.logger.info("job %s is failed %s times, but replied, max replied %d",
+        self.logger.debug("job %s is failed x times, but replied, max replied %d",
                           job_type, replied_num, self.max_retry, extra=self.einfo)
         
         self.client.rpush(job_type, message)
@@ -178,3 +181,4 @@ class Jobseeker(object):
     
     def complete_current_work(self):
         self.client.hset('worker:current_work', self.identity, "idle")
+
