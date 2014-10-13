@@ -1,16 +1,9 @@
 rpush
 =====
 
-Python wrapper used to push notification to several web service
+This is a incomplete docummentation (todo: complete this)
 
-Currently support for:
-
- * BlackBerry
- * Android
-
-Planning to support, [see to do]
- 
-Since notification can work as background job, you can use rpush as job queue via jobseeker.
+Library for delayed job. Using redis as message broker.
 
 What you need it is a Redis server (ver 2.4 using in development)
 Also Need:
@@ -28,18 +21,6 @@ Feature
 
 How To Use
 ==========
-
-Using rpush as library
---------------------
-
-    >>> import rpush
-    >>> # push to android c2dm
-    >>> c2dm = rpush.android.Android(app_email=[APP-EMAIL], app_email_password=[APP-EMAIL-PASSWORD])
-    >>> c2dm.push(registration_id=[REG-ID], collapse_key=None, data={"message": "Hi Citra!"}, delay_while_idle=True)
-    >>> # push to blackberry
-    >>> pushapi = rpush.blackberry.Blackberry([APP-ID], [APP-PASSWORD], [APP-PUSH-URL])
-    >>> pushapi.push(pins=[12345678], message="Hi again Citra!")
-
 
 Using jobseeker as Message Queue with rpush
 -------------------------------------------
@@ -60,17 +41,10 @@ Create dummy config.ini file
     
     worker=1
     # separated by space
-    use_module=blackberry android
+    use_module=sendemail
     
-    [android]
-    app_email = [YOUR-EMAIL-ADDRESS]
-    app_email_password = [YOUR-EMAIL-PASSWORD]
-    app_source = [COMPANY-APPLICATION-VERSION]
-    
-    [blackberry]
-    app_id = [YOUR-APP-ID]
-    app_password = [YOUR-APP-PASSWORD]
-    app_push_url = https://pushapi.eval.blackberry.com/mss/PD_pushRequest
+    [sendemail]
+    mandrill_api_key
     
     
 Start worker
@@ -81,28 +55,7 @@ Start worker
 Easily send job queue via redis rpush method
 
     $ redis-cli
-    $ > rpush jobs:android "{\"registration_id\": \"REG_ID\", \"collapse_key\": 123, \"data\": {\"message\": \"Hi citra!\"}}"
-    $ > rpush jobs:blackberry "{\"pins\": [\"12345678\"], \"message\": \"Hello again citra!\"}"
-    
-Easily monitoring log via redis-cli
-
-    $ redis-cli
-    $ # get latest failed job log and also the traceback
-    $ > lrange failed:job 0 1
-    $ # get latest sucess job log
-    $ > lrange success:job 0 1
-    $ # get job queue length, (blackberry push for example)
-    $ > llen jobs:blackberry
-    $ # see list of worker
-    $ > HKEYS worker:info
-    $ # see how many job has been worked by worker
-    $ > GET worker:info [worker-id]
-    $ # see how many job has been worked and failed by worker
-    $ > GET worker:info:failed [worker-id]
-    $ # see if your code already send wrong opcode/message
-    $ > LRANGE invalid:message 0 100
-    $ # see if your code already send wrong type
-    $ > LRANGE invalid-type 0 100
+    $ > rpush jobs:sendemail "{\"to\": \"mail@example.com\", \"from\": \"sender@example.com\", \"subject\": \"Subject Test\", \"body_plain\": \"text message\"}"
 
 Also you can easily monitoring job log via web interface,
 to run weblog you need install web.py and mako template engine.
@@ -131,16 +84,10 @@ TODO
 
  * complete weblog, support for modular report
  * easily launch new worker without dirty hand into console
- * support Apple APNS
- * support NGINX Push Stream Module
- * support Windows Mobile
+ * support example library for common use-case delayed job
  
 Bug Reports
 ===========
 
 Send your bug report, suggestion to rizky [at] abdi [dot] la
 
-Credits
-=======
-
- * Nicholas Brochu ![https://github.com/nbrochu], who originally write the library blackberry push in ruby
